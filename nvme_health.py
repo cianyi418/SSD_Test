@@ -1,6 +1,7 @@
 import subprocess
 import json
 from datetime import datetime
+from nvme_results_alert import check_health
 
 
 def get_nvme_ssd_health(nvme_device="/dev/nvme0"):
@@ -35,3 +36,12 @@ if __name__ == "__main__":
             json.dump(result, json_file, indent=4, ensure_ascii=False)
 
         print(f"NVMe SSD health information saved to {file_name}")
+
+    # Check the health and print any warnings
+    warnings = check_health(file_name)
+    if warnings:
+        print("Warnings detected:")
+        for warning in warnings:
+            print(f"- {warning}")
+    else:
+        print("No warnings detected.")
