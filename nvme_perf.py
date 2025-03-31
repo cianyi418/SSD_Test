@@ -2,7 +2,30 @@ import subprocess
 import json
 import time
 
-Device = "/dev/nvme0n1"
+def detect_nvme_device():
+    # Detect the NVMe device using lsblk
+    try:
+        result = subprocess.run(
+            ["lsblk", "-o", "NAME,TYPE,SIZE"],
+            capture_output=True, 
+            text=True
+        )
+        devices = result.stdout.strip().split("\n")
+        for device in devices:
+            name, dev_type, size = device.split()
+            if dev_type == "disk" and "nvme" in name:
+                return f"/dev/{name}" # Return the first NVMe device found
+        raise Exception("No NVMe device found")
+    except Exception as e:
+        print(f"Error detecting NVMe device: {str(e)}")
+        return None
+
+# Aoutomatically detect the NVMe device
+Device = detect_nvme_device()
+if not Device:
+    print("No NVMe device found. Exiting.")
+    exit(1)
+
 RunTime = 15
 Results = {}
 
