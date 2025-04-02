@@ -55,11 +55,10 @@ def run_fio_test(test):
         "--output-format=json"
     ]
 
-
-    result = subprocess.run(fio_cmd, capture_output=True, text=True)
-    # print(f"FIO command output: {result.stdout}")
-    # print(f"FIO command error: {result.stderr}")
     try:
+        result = subprocess.run(fio_cmd, capture_output=True, text=True)
+        print(f"FIO command output: {result.stdout}")
+
         output = json.loads(result.stdout)
         job = output["jobs"][0]
         rw_type = "read" if "read" in test["rw"] else "write"
@@ -69,7 +68,7 @@ def run_fio_test(test):
             bw = job[rw_type]["bw_mean"] / 1024 # Convert to MB/s
             lat = job[rw_type]["lat_ns"]["mean"] / 1000 # Convert to us
 
-            Results[test["name"]] = {
+            return {
                 "type": rw_type,
                 "block_size": test["bs"],
                 "IOPS": round(iops, 2),
@@ -78,16 +77,26 @@ def run_fio_test(test):
             }
         else:
             raise ValueError("Invalid output format from FIO")
+    except subprocess.CalledProcessError as e:
+        print(f"FIO command failed: {e.stderr}")
+        return {"error": f"FIO command failed: {e.stderr}"}
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse FIO output: {str(e)}")
+        return {"error": f"Failed to parse FIO output: {str(e)}"}
     except Exception as e:
-        print(f"Test_failed: {str(e)}")
-        Results[test["name"]] = {"error": "Analyze error or execution failed"}
+        print(f"Unexpected error: {str(e)}")
+        return {"error": f"Unexpected error: {str(e)}"}
+    
+    
 
 
 def main():
     print("Starting NVMe SSD performance tests...")
     for test in TESTS:
-        run_fio_test(test)
+        result = run_fio_test(test)
+        Results[test["name"]] = result
         time.sleep(1)  # Sleep for 1 second between tests
+
     print("All tests completed.")
 
 
