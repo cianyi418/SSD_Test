@@ -105,10 +105,7 @@ def print_results(results):
 
 # Main function
 def main():
-    print("Waiting for system to stabilize...")
-    time.sleep(30)  # Wait for system to stabilize
-
-    ensure_log_directory()
+    ensure_log_directory() # Ensure the log directory exists and is writable
     Device = detect_nvme_device()
     if not Device:
         print("No NVMe device found. Exiting.")
