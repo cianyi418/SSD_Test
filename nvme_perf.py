@@ -40,7 +40,7 @@ TESTS = [
 def run_fio_test(test):
     print(f"Running FIO test: {test['name']}")
     fio_cmd = [
-        "sudo",
+        # "sudo",
         "fio",
         "--name=fio_test",
         f"--filename={Device}",
