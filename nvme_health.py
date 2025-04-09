@@ -7,7 +7,7 @@ from nvme_results_alert import check_health
 def get_nvme_ssd_health(nvme_device="/dev/nvme0"):
     try:
         # Run the command to get the health of the NVMe SSD
-        cmd = f"sudo nvme smart-log {nvme_device} -o json"
+        cmd = f"/usr/sbin/nvme smart-log {nvme_device} -o json"
         result = subprocess.run(cmd.split(), capture_output=True, text=True)
         
         # Check if the command executed successfully
@@ -24,6 +24,8 @@ def get_nvme_ssd_health(nvme_device="/dev/nvme0"):
 
 
 if __name__ == "__main__":
+    file_name = None # Initialize file_name to None
+    
     # Call the function and print the result
     result = get_nvme_ssd_health()
     
@@ -38,10 +40,11 @@ if __name__ == "__main__":
         print(f"NVMe SSD health information saved to {file_name}")
 
     # Check the health and print any warnings
-    warnings = check_health(file_name)
-    if warnings:
-        print("Warnings detected:")
-        for warning in warnings:
-            print(f"- {warning}")
-    else:
-        print("No warnings detected.")
+    if file_name:    
+        warnings = check_health(file_name)
+        if warnings:
+            print("Warnings detected:")
+            for warning in warnings:
+                print(f"- {warning}")
+        else:
+            print("No warnings detected.")
