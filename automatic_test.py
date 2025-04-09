@@ -13,7 +13,7 @@ from nvme_perf import run_fio_test
 
 #deployment
 if os.geteuid() == 0:
-    LOG_DIR = "var/log/nvme_test_logs"
+    LOG_DIR = "/var/log/nvme_test_logs"
 else:
     LOG_DIR = os.path.expanduser("~/nvme_test_logs")
 
@@ -121,6 +121,8 @@ def main():
     try:
         # Get NVMe SSD health status
         health_status = get_nvme_ssd_health(Device)
+        if health_status is None:
+            raise ValueError("Health status is None. Unable to proceed.")
         Results["health_status"] = {
             "type": "health_status",
             "details": health_status
@@ -178,7 +180,7 @@ def main():
     except Exception as e:
         error_msg = f"Error during SSD test: {str(e)}"
         print(error_msg)
-        send_error_email(error_msg)
+        send_error_email(f"Error during health check: {error_msg}")
         raise
 
 if __name__ == "__main__":
