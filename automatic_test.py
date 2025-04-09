@@ -5,6 +5,7 @@ import os
 import subprocess
 import time
 from email.message import EmailMessage
+from config_helper import load_config
 from nvme_health import get_nvme_ssd_health
 from nvme_results_alert import check_health_from_object
 from nvme_perf import detect_nvme_device
@@ -30,6 +31,12 @@ TESTS = [
     {"name": "randwrite_128k", "rw": "write", "bs": "128k", "numjobs": 1, "iodepth": 32},
     {"name": "randread_128k", "rw": "read", "bs": "128k", "numjobs": 1, "iodepth": 32}
 ]
+
+# Load configuration
+config = load_config()
+
+EMAIL_FROM = config.get("email_from", "default_from@example.com")
+EMAIL_TO = config.get("email_to", "default_to@example.com")
 
 # create folder
 def ensure_log_directory():
@@ -58,8 +65,8 @@ def send_error_email(error_msg):
     msg = EmailMessage()
     msg.set_content(error_msg)
     msg['Subject'] = 'SSD Test Error Alert'
-    msg['From'] = "recipient@example.com"
-    msg['To'] = "sender@example.com"
+    msg['From'] = EMAIL_FROM #"vian.liu.dev@gmail.com"
+    msg['To'] = EMAIL_TO #"ssd_test_alert@googlegroups.com"
 
     try:
         subprocess.run(
