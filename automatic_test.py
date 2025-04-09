@@ -65,8 +65,8 @@ def send_error_email(error_msg):
     msg = EmailMessage()
     msg.set_content(error_msg)
     msg['Subject'] = 'SSD Test Error Alert'
-    msg['From'] = EMAIL_FROM #"vian.liu.dev@gmail.com"
-    msg['To'] = EMAIL_TO #"ssd_test_alert@googlegroups.com"
+    msg['From'] = EMAIL_FROM
+    msg['To'] = EMAIL_TO
 
     try:
         subprocess.run(
